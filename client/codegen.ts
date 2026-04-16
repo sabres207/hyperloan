@@ -7,6 +7,10 @@ const config: CodegenConfig = {
   generates: {
     './src/__generated__/': {
       preset: 'client',
+      config: {
+        useTypeImports: true,
+        enumsAsTypes: true,
+      },
     },
   },
 }

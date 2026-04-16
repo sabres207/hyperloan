@@ -9,7 +9,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createLoan(createLoanInput: CreateLoanInput!): Loan
+    createLoan(createLoanInput: CreateLoanInput!): Loan!
   }
 
   type Loan {
@@ -37,7 +37,7 @@ export const typeDefs = gql`
     PRINCIPAL_PLUS_INTEREST
   }
 
-  type CreateLoanInput {
+  input CreateLoanInput {
     name: String!
     principalAmount: Float!
     startDate: Date!
