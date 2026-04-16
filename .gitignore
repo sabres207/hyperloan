@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+
+# SQLite database
+*.db
+
+# GraphQL Codegen output
+__generated__/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
