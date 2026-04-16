@@ -1,0 +1,2 @@
+schema: ./server/src/schema.graphql.ts
+documents: ./client/src/**/*.tsx
