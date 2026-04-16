@@ -1,7 +1,7 @@
 import { useEffect, type FC, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
-import CloseIcon from '../assets/close.svg?react'
+import { X } from 'lucide-react'
 
 type ModalProps = {
   isOpen: boolean
@@ -33,9 +33,7 @@ export const Modal: FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
     <Overlay onClick={onClose}>
       <ModalContainer onClick={(event) => event.stopPropagation()}>
         <Header>
-          <CloseButton onClick={onClose}>
-            <CloseIcon width={24} height={24} />
-          </CloseButton>
+          <CloseButton onClick={onClose} width={24} height={24} />
           {!!title && <Title>{title}</Title>}
         </Header>
         {children}
@@ -81,10 +79,7 @@ const Title = styled.h2`
   margin: 0;
 `
 
-const CloseButton = styled.button`
-  border: none;
-  padding: 0;
-  background: transparent;
+const CloseButton = styled(X)`
   font-size: 20px;
   cursor: pointer;
   color: #666;
