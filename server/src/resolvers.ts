@@ -1,96 +1,48 @@
 import { DateResolver } from 'graphql-scalars'
-import { PaymentType, Resolvers } from './__generated__/resolvers-types.js'
+import { Resolvers } from './__generated__/resolvers-types.js'
+import { AppDataSource } from './data-source.js'
+import { Loan } from './entities/Loan.js'
+import { Repayment } from './entities/Repayment.js'
 
 export const resolvers: Resolvers = {
   Date: DateResolver,
   Query: {
-    loans: () => MOCK_LOANS,
-    loan: (_, { id }) => MOCK_LOANS.find((loan) => loan.id === id) ?? null,
+    loans: async () => {
+      const loanRepository = AppDataSource.getRepository(Loan)
+      return loanRepository.find()
+    },
+    loan: async (_, { id }) => {
+      const loanRepository = AppDataSource.getRepository(Loan)
+      return loanRepository.findOne({ where: { id } })
+    },
   },
   Mutation: {
-    createLoan: (
+    createLoan: async (
       _,
       { createLoanInput: { name, principalAmount, startDate, endDate } }
     ) => {
-      return {
-        id: '1',
+      // TODO: use loan service logic for repayment schedule creation
+      const loanRepository = AppDataSource.getRepository(Loan)
+      const loan = loanRepository.create({
         name,
         principalAmount,
         startDate,
         endDate,
-        totalExpectedInterest: 0,
-        repaymentSchedule: [],
-      }
+      })
+      return loanRepository.save(loan)
     },
   },
-  Loan: {},
-  Repayment: {},
+  Loan: {
+    totalExpectedInterest: async ({ id }, _, { db }) => {
+      const repaymentRepository = db.getRepository(Repayment)
+      const totalInterst = await repaymentRepository.sum('interestComponent', {
+        loanId: id,
+      })
+      return totalInterst || 0
+    },
+    repaymentSchedule: async ({ id }, _, { db }) => {
+      const repaymentRepository = db.getRepository(Repayment)
+      return repaymentRepository.find({ where: { loanId: id } })
+    },
+  },
 }
-
-const MOCK_LOANS = [
-  {
-    id: '1',
-    name: 'Loan 1',
-    principalAmount: 10000,
-    startDate: new Date('2026-01-01'),
-    endDate: new Date('2026-02-15'),
-    totalExpectedInterest: 80,
-    repaymentSchedule: [
-      {
-        id: '1',
-        paymentDate: new Date('2026-01-30'),
-        paymentType: PaymentType.Interest,
-        principalComponent: 0,
-        interestComponent: 50,
-        totalPayment: 50,
-        remainingBalance: 10000,
-      },
-      {
-        id: '2',
-        paymentDate: new Date('2026-02-15'),
-        paymentType: PaymentType.PrincipalPlusInterest,
-        principalComponent: 10000,
-        interestComponent: 30,
-        totalPayment: 10030,
-        remainingBalance: 0,
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: 'Loan 2',
-    principalAmount: 500,
-    startDate: new Date('2026-05-15'),
-    endDate: new Date('2026-07-31'),
-    totalExpectedInterest: 10,
-    repaymentSchedule: [
-      {
-        id: '3',
-        paymentDate: new Date('2026-05-31'),
-        paymentType: PaymentType.Interest,
-        principalComponent: 0,
-        interestComponent: 2,
-        totalPayment: 2,
-        remainingBalance: 500,
-      },
-      {
-        id: '4',
-        paymentDate: new Date('2026-06-30'),
-        paymentType: PaymentType.Interest,
-        principalComponent: 0,
-        interestComponent: 4,
-        totalPayment: 4,
-        remainingBalance: 500,
-      },
-      {
-        id: '5',
-        paymentDate: new Date('2026-07-31'),
-        paymentType: PaymentType.PrincipalPlusInterest,
-        principalComponent: 500,
-        interestComponent: 4,
-        totalPayment: 504,
-        remainingBalance: 0,
-      },
-    ],
-  },
-]
