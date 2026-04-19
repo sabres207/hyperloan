@@ -2,7 +2,6 @@ import { DateResolver } from 'graphql-scalars'
 import { Resolvers } from './__generated__/resolvers-types.js'
 import { AppDataSource } from './data-source.js'
 import { Loan } from './entities/Loan.js'
-import { Repayment } from './entities/Repayment.js'
 
 export const resolvers: Resolvers = {
   Date: DateResolver,
@@ -33,16 +32,11 @@ export const resolvers: Resolvers = {
     },
   },
   Loan: {
-    totalExpectedInterest: async ({ id }, _, { db }) => {
-      const repaymentRepository = db.getRepository(Repayment)
-      const totalInterst = await repaymentRepository.sum('interestComponent', {
-        loanId: id,
-      })
-      return totalInterst || 0
+    totalExpectedInterest: async ({ id }, _, { loaders }) => {
+      return loaders.totalInterestByLoanId.load(id)
     },
-    repaymentSchedule: async ({ id }, _, { db }) => {
-      const repaymentRepository = db.getRepository(Repayment)
-      return repaymentRepository.find({ where: { loanId: id } })
+    repaymentSchedule: async ({ id }, _, { loaders }) => {
+      return loaders.repaymentsByLoanId.load(id)
     },
   },
 }
