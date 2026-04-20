@@ -2,6 +2,8 @@ import type { FC } from 'react'
 
 import styled from 'styled-components'
 
+import { TEXT } from './textConsts'
+
 type PaginationProps = {
   page: number
   pageSize: number
@@ -22,7 +24,7 @@ export const Pagination: FC<PaginationProps> = ({
   return (
     <Bar>
       <Info>
-        Showing {startItem}&ndash;{endItem} of {total} loans
+        {TEXT.pagination.showing} {startItem}&ndash;{endItem} {TEXT.pagination.of} {total} {TEXT.pagination.loans}
       </Info>
       <Buttons>
         <PageBtn onClick={() => onPageChange(page - 1)} disabled={page === 0}>

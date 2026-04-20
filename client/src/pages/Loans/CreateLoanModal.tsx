@@ -12,6 +12,8 @@ import { Field } from '~/components/Field'
 import { Modal } from '~/components/Modal'
 import { Toast } from '~/components/Toast'
 
+import { TEXT } from './textConsts'
+
 type CreateLoanModalProps = {
   showModal: boolean
   setShowModal: Dispatch<SetStateAction<boolean>>
@@ -20,19 +22,19 @@ type CreateLoanModalProps = {
 
 const schema = z
   .object({
-    name: z.string().min(1, 'Loan name is required'),
+    name: z.string().min(1, TEXT.createModal.validation.nameRequired),
     principalAmount: z.string().refine(
       (v) => {
         const n = parseFloat(v.replace(/[^0-9.]/g, ''))
         return !isNaN(n) && n > 0
       },
-      { message: 'Enter a valid principal amount greater than 0' }
+      { message: TEXT.createModal.validation.invalidPrincipal }
     ),
-    startDate: z.string().min(1, 'Start date is required'),
-    endDate: z.string().min(1, 'End date is required'),
+    startDate: z.string().min(1, TEXT.createModal.validation.startDateRequired),
+    endDate: z.string().min(1, TEXT.createModal.validation.endDateRequired),
   })
   .refine((d) => !d.startDate || d.endDate > d.startDate, {
-    message: 'Maturity must be after the start date',
+    message: TEXT.createModal.validation.maturityAfterStart,
     path: ['endDate'],
   })
 
@@ -101,7 +103,7 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
     <>
       {showToast && (
         <Toast
-          message="Loan created successfully"
+          message={TEXT.createModal.toast}
           onDismiss={() => setShowToast(false)}
         />
       )}
@@ -109,7 +111,7 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
         isOpen={showModal}
         onClose={close}
         disableClose={loading}
-        title="New Loan"
+        title={TEXT.createModal.title}
         footer={
           <>
             <Button
@@ -119,7 +121,7 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
               onClick={close}
               disabled={loading}
             >
-              Cancel
+              {TEXT.createModal.cancel}
             </Button>
             <Button
               $size="sm"
@@ -127,35 +129,35 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
               onClick={handleSubmit(onSubmit)}
               disabled={loading}
             >
-              {loading ? 'Creating…' : 'Create Loan'}
+              {loading ? TEXT.createModal.creating : TEXT.createModal.submit}
             </Button>
           </>
         }
       >
         <form onSubmit={handleSubmit(onSubmit)}>
           <Field
-            label="Loan name"
-            placeholder="e.g. Acme Corp Term Loan"
+            label={TEXT.createModal.fields.name.label}
+            placeholder={TEXT.createModal.fields.name.placeholder}
             autoFocus
             error={errors.name?.message}
             {...register('name')}
           />
           <Field
-            label="Principal amount (USD)"
-            placeholder="500000"
-            hint="Enter the full amount in USD"
+            label={TEXT.createModal.fields.principal.label}
+            placeholder={TEXT.createModal.fields.principal.placeholder}
+            hint={TEXT.createModal.fields.principal.hint}
             error={errors.principalAmount?.message}
             {...register('principalAmount')}
           />
           <FieldRow>
             <Field
-              label="Start date"
+              label={TEXT.createModal.fields.startDate.label}
               type="date"
               error={errors.startDate?.message}
               {...register('startDate')}
             />
             <Field
-              label="Maturity date"
+              label={TEXT.createModal.fields.maturityDate.label}
               type="date"
               min={startDate || undefined}
               error={errors.endDate?.message}

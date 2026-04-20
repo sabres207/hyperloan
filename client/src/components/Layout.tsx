@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import { useThemeToggle } from '~/styles/theme'
 
 import { Logo } from './Logo'
+import { TEXT } from './textConsts'
 
 type LayoutProps = {
   children: ReactNode
@@ -26,13 +27,11 @@ export const Layout = ({ children, onNewLoan }: LayoutProps) => {
         <Spacer />
         {onNewLoan && (
           <NewLoanBtn onClick={onNewLoan}>
-            <span style={{ fontSize: 17, lineHeight: 1, marginTop: -1 }}>
-              +
-            </span>{' '}
-            New Loan
+            <PlusIcon>+</PlusIcon>{' '}
+            {TEXT.newLoan}
           </NewLoanBtn>
         )}
-        <ThemeButton onClick={toggle} title="Toggle theme">
+        <ThemeButton onClick={toggle} title={TEXT.toggleTheme}>
           {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </ThemeButton>
       </Nav>
@@ -84,6 +83,12 @@ const Wordmark = styled.span`
 
 const Spacer = styled.div`
   flex: 1;
+`
+
+const PlusIcon = styled.span`
+  font-size: 17px;
+  line-height: 1;
+  margin-top: -1px;
 `
 
 const NewLoanBtn = styled.button`

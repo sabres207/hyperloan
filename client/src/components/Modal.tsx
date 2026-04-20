@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 
 import styled from 'styled-components'
 
+import { TEXT } from './textConsts'
+
 type ModalProps = {
   isOpen: boolean
   onClose: () => void
@@ -58,7 +60,7 @@ export const Modal: FC<ModalProps> = ({
           <Title>{title}</Title>
           <CloseBtn
             onClick={handleClose}
-            aria-label="Close"
+            aria-label={TEXT.close}
             disabled={disableClose}
           >
             &times;

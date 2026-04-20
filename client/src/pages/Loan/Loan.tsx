@@ -84,17 +84,13 @@ export const Loan: FC = () => {
             <Table>
               <thead>
                 <tr>
-                  <Th style={{ width: 56, paddingLeft: 24 }}>
-                    {TEXT.columns.number}
-                  </Th>
+                  <ThFirst>{TEXT.columns.number}</ThFirst>
                   <Th>{TEXT.columns.paymentDate}</Th>
                   <Th>{TEXT.columns.type}</Th>
                   <ThR>{TEXT.columns.principal}</ThR>
                   <ThR>{TEXT.columns.interest}</ThR>
                   <ThR>{TEXT.columns.totalDue}</ThR>
-                  <ThR style={{ paddingRight: 24 }}>
-                    {TEXT.columns.remainingBalance}
-                  </ThR>
+                  <ThRLast>{TEXT.columns.remainingBalance}</ThRLast>
                 </tr>
               </thead>
               <tbody>
@@ -102,7 +98,7 @@ export const Loan: FC = () => {
                   const isLast = i === repayments.length - 1
                   return (
                     <Tr key={r.id} $highlight={isLast}>
-                      <TdNum style={{ paddingLeft: 24 }}>{i + 1}</TdNum>
+                      <TdFirst>{i + 1}</TdFirst>
                       <Td>{formatDate(r.paymentDate)}</Td>
                       <Td>
                         <Badge
@@ -124,13 +120,12 @@ export const Loan: FC = () => {
                       </TdR>
                       <TdR>{formatCurrency(r.interestComponent)}</TdR>
                       <TdR $bold={isLast}>{formatCurrency(r.totalPayment)}</TdR>
-                      <TdR
-                        style={{ paddingRight: 24 }}
+                      <TdRLast
                         $bold={isLast}
                         $success={isLast}
                       >
                         {formatCurrency(r.remainingBalance)}
-                      </TdR>
+                      </TdRLast>
                     </Tr>
                   )
                 })}
@@ -242,8 +237,17 @@ const Th = styled.th`
   white-space: nowrap;
 `
 
+const ThFirst = styled(Th)`
+  width: 56px;
+  padding-left: ${({ theme }) => theme.space[6]};
+`
+
 const ThR = styled(Th)`
   text-align: right;
+`
+
+const ThRLast = styled(ThR)`
+  padding-right: ${({ theme }) => theme.space[6]};
 `
 
 const Tr = styled.tr<{ $highlight?: boolean }>`
@@ -264,9 +268,10 @@ const Td = styled.td`
   color: ${({ theme }) => theme.colors.text1};
 `
 
-const TdNum = styled(Td)`
+const TdFirst = styled(Td)`
   color: ${({ theme }) => theme.colors.text3};
   font-size: ${({ theme }) => theme.fontSizes.sm};
+  padding-left: ${({ theme }) => theme.space[6]};
 `
 
 const TdR = styled(Td)<{ $bold?: boolean; $success?: boolean }>`
@@ -275,6 +280,10 @@ const TdR = styled(Td)<{ $bold?: boolean; $success?: boolean }>`
   font-weight: ${({ $bold }) => ($bold ? 700 : 400)};
   color: ${({ $success, theme }) =>
     $success ? theme.colors.success : theme.colors.text1};
+`
+
+const TdRLast = styled(TdR)`
+  padding-right: ${({ theme }) => theme.space[6]};
 `
 
 const Dash = styled.span`

@@ -77,7 +77,7 @@ export const Loans: FC<LoansProps> = ({ newLoanId }) => {
                   <Th>{TEXT.columns.startDate}</Th>
                   <Th>{TEXT.columns.maturity}</Th>
                   <Th $right>{TEXT.columns.totalInterest}</Th>
-                  <Th style={{ width: 52 }} />
+                  <ThArrow />
                 </tr>
               </thead>
               <tbody>
@@ -160,6 +160,10 @@ const Th = styled.th<{ $right?: boolean; $first?: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.colors.borderDefault};
   background: ${({ theme }) => theme.colors.subtle};
   white-space: nowrap;
+`
+
+const ThArrow = styled(Th)`
+  width: 52px;
 `
 
 const ClickRow = styled.tr<{ $highlight?: boolean }>`
