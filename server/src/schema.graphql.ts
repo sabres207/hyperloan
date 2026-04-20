@@ -2,6 +2,7 @@ import { gql } from 'graphql-tag'
 
 export const typeDefs = gql`
   scalar Date
+  scalar DateTime
 
   type Query {
     loans(loansPageInput: LoansPageInput): LoansPage!
@@ -19,22 +20,24 @@ export const typeDefs = gql`
 
   type Loan {
     id: ID!
+    createdAt: DateTime!
     name: String!
-    principalAmount: Float!
+    principalAmount: String!
     startDate: Date!
     endDate: Date!
-    totalExpectedInterest: Float!
+    totalExpectedInterest: String!
     repaymentSchedule: [Repayment!]!
   }
 
   type Repayment {
     id: ID!
+    createdAt: DateTime!
     paymentDate: Date!
     paymentType: PaymentType!
-    principalComponent: Float!
-    interestComponent: Float!
-    totalPayment: Float!
-    remainingBalance: Float!
+    principalComponent: String!
+    interestComponent: String!
+    totalPayment: String!
+    remainingBalance: String!
   }
 
   enum PaymentType {
@@ -49,7 +52,7 @@ export const typeDefs = gql`
 
   input CreateLoanInput {
     name: String!
-    principalAmount: Float!
+    principalAmount: String!
     startDate: Date!
     endDate: Date!
   }

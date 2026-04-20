@@ -3,13 +3,14 @@ import {
   CreateLoanInput,
   PaymentType,
 } from '../__generated__/resolvers-types.js'
-import { Loan } from '../entities/Loan.js'
-import { Repayment } from '../entities/Repayment.js'
-import dayjs, { type Dayjs } from 'dayjs'
+import { Loan } from '../db/entities/Loan.js'
+import { Repayment } from '../db/entities/Repayment.js'
+import dayjs from 'dayjs'
+import { Decimal } from '../decimal.js'
 import { getRateTimeline, RateDataPoint } from './fred.js'
 
 type RepaymentData = Omit<Repayment, 'id' | 'createdAt' | 'loan' | 'loanId'>
-type MonthSegment = { rate: number; days: number }
+type MonthSegment = { rate: Decimal; days: number }
 
 const VIRTUAL_DAYS_IN_MONTH = 30
 const VIRTUAL_DAYS_IN_YEAR = 360
@@ -18,21 +19,24 @@ export async function createBulletLoan(
   db: DataSource,
   input: CreateLoanInput
 ): Promise<Loan> {
-  const repaymentSchedule = await buildBulletLoanSchedule(input)
+  const { repaymentSchedule, totalExpectedInterest } =
+    await buildBulletLoanSchedule(input)
 
   return db.getRepository(Loan).save({
     name: input.name,
-    principalAmount: input.principalAmount,
+    principalAmount: new Decimal(input.principalAmount),
     startDate: input.startDate,
     endDate: input.endDate,
+    totalExpectedInterest,
     repaymentSchedule,
   })
 }
 
 async function buildBulletLoanSchedule(
   loan: CreateLoanInput
-): Promise<RepaymentData[]> {
+): Promise<{ repaymentSchedule: RepaymentData[]; totalExpectedInterest: Decimal }> {
   const { startDate, endDate, principalAmount } = loan
+  const principal = new Decimal(principalAmount)
   const rateTimeline = await getRateTimeline(startDate, endDate)
   const maturityDate = dayjs(endDate)
 
@@ -56,9 +60,9 @@ async function buildBulletLoanSchedule(
     repaymentSchedule.push(
       buildRepayment(
         currentDate.daysInMonth(),
-        endOfMonth,
+        endOfMonth.format('YYYY-MM-DD'),
         isLastMonth,
-        principalAmount,
+        principal,
         monthSegments
       )
     )
@@ -66,35 +70,40 @@ async function buildBulletLoanSchedule(
     currentDate = currentDate.add(1, 'month').startOf('month')
   }
 
-  return repaymentSchedule
+  const totalExpectedInterest = repaymentSchedule.reduce(
+    (sum, r) => sum.plus(r.interestComponent),
+    new Decimal(0)
+  )
+
+  return { repaymentSchedule, totalExpectedInterest }
 }
 
 function buildRepayment(
   daysInMonth: number,
-  endOfMonth: Dayjs,
+  paymentDate: string,
   isLastMonth: boolean,
-  principalAmount: number,
+  principalAmount: Decimal,
   monthSegments: MonthSegment[]
 ): RepaymentData {
   const monthlyRate = calculateMonthlyRatePercent(monthSegments, daysInMonth)
-  const interestComponent = principalAmount * (monthlyRate / 100)
-  const principalComponent = isLastMonth ? principalAmount : 0
+  const interestComponent = principalAmount.mul(monthlyRate.div(100))
+  const principalComponent = isLastMonth ? principalAmount : new Decimal(0)
   return {
-    paymentDate: endOfMonth.toDate(),
+    paymentDate,
     paymentType: isLastMonth
       ? PaymentType.PrincipalPlusInterest
       : PaymentType.Interest,
     principalComponent,
     interestComponent,
-    totalPayment: interestComponent + principalComponent,
-    remainingBalance: isLastMonth ? 0 : principalAmount,
+    totalPayment: interestComponent.plus(principalComponent),
+    remainingBalance: isLastMonth ? new Decimal(0) : principalAmount,
   }
 }
 
 function buildMonthSegments(
   rateTimeline: RateDataPoint[],
-  startOfMonth: Dayjs,
-  endOfMonth: Dayjs,
+  startOfMonth: dayjs.Dayjs,
+  endOfMonth: dayjs.Dayjs,
   rateIndex: number
 ): { monthSegments: MonthSegment[]; nextRateIndex: number } {
   const monthSegments: MonthSegment[] = []
@@ -125,19 +134,16 @@ function buildMonthSegments(
 function calculateMonthlyRatePercent(
   monthSegments: MonthSegment[],
   daysInMonth: number
-): number {
-  const totalDays = monthSegments.reduce(
-    (acc, segment) => acc + segment.days,
-    0
-  )
+): Decimal {
+  const totalDays = monthSegments.reduce((acc, seg) => acc + seg.days, 0)
   const weightedRateSum = monthSegments.reduce(
-    (acc, monthRate) => acc + monthRate.rate * monthRate.days,
-    0
+    (acc, seg) => acc.plus(seg.rate.mul(seg.days)),
+    new Decimal(0)
   )
 
   const isFullMonth = totalDays === daysInMonth
   const virtualRateDays = isFullMonth
-    ? (weightedRateSum * VIRTUAL_DAYS_IN_MONTH) / totalDays
+    ? weightedRateSum.mul(VIRTUAL_DAYS_IN_MONTH).div(totalDays)
     : weightedRateSum
-  return virtualRateDays / VIRTUAL_DAYS_IN_YEAR
+  return virtualRateDays.div(VIRTUAL_DAYS_IN_YEAR)
 }

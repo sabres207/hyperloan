@@ -9,7 +9,8 @@ const config: CodegenConfig = {
         contextType: '../context.js#Context',
         useIndexSignature: true,
         mappers: {
-          Loan: '../entities/Loan.js#Loan as LoanEntity',
+          Loan: '../db/entities/Loan.js#Loan as LoanEntity',
+          Repayment: '../db/entities/Repayment.js#Repayment as RepaymentEntity',
         },
       },
     },

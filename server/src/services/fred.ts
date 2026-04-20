@@ -1,9 +1,9 @@
-import e from 'cors'
 import dayjs from 'dayjs'
+import { Decimal } from '../decimal.js'
 
 export type RateDataPoint = {
-  date: Date
-  rate: number
+  date: string
+  rate: Decimal
 }
 
 type FredResponse = {
@@ -44,7 +44,6 @@ async function fetchObservations(
   endDate: string
 ): Promise<RateDataPoint[]> {
   const url = fredUrl(seriesId, startDate, endDate)
-  console.log(url)
   const res = await fetch(url)
   if (!res.ok) {
     throw new Error(`FRED API error: ${res.status} ${res.statusText}`)
@@ -52,14 +51,12 @@ async function fetchObservations(
 
   const data = (await res.json()) as FredResponse
   return data.observations.map((o) => ({
-    date: new Date(o.date),
-    rate: parseFloat(o.value),
+    date: o.date,
+    rate: new Decimal(o.value),
   }))
 }
 
-export async function getPrimeRateAt(date: Date): Promise<number> {
-  const endDate = dayjs(date).format('YYYY-MM-DD')
-
+export async function getPrimeRateAt(date: string): Promise<Decimal> {
   for (const lookbackDays of [
     DEFAULT_DAYS_TO_LOOKBACK,
     DAYS_TO_LOOKBACK_ON_RETRY,
@@ -67,41 +64,39 @@ export async function getPrimeRateAt(date: Date): Promise<number> {
     const startDate = dayjs(date)
       .subtract(lookbackDays, 'day')
       .format('YYYY-MM-DD')
-    const observations = await fetchObservations('DPRIME', startDate, endDate)
+    const observations = await fetchObservations('DPRIME', startDate, date)
     if (observations.length > 0) {
       return observations[observations.length - 1].rate
     }
   }
 
-  throw new Error(`No prime rate data found for date ${date.toString()}`)
+  throw new Error(`No prime rate data found for date ${date}`)
 }
 
 export async function getPrimeRateChanges(
-  startDate: Date,
-  endDate: Date
+  startDate: string,
+  endDate: string
 ): Promise<RateDataPoint[]> {
   const start = dayjs(startDate).add(1, 'day').format('YYYY-MM-DD')
-  const end = dayjs(endDate).format('YYYY-MM-DD')
-  return fetchObservations('PRIME', start, end)
+  return fetchObservations('PRIME', start, endDate)
 }
 
 export async function getRateTimeline(
-  startDate: Date,
-  endDate: Date
+  startDate: string,
+  endDate: string
 ): Promise<RateDataPoint[]> {
-  const today = dayjs().startOf('day')
-  const start = dayjs(startDate).startOf('day')
-  const end = dayjs(endDate).startOf('day')
+  const today = dayjs().startOf('day').format('YYYY-MM-DD')
+  const start = dayjs(startDate).startOf('day').format('YYYY-MM-DD')
 
-  if (!start.isBefore(today)) {
-    const rate = await getPrimeRateAt(today.toDate())
+  if (start >= today) {
+    const rate = await getPrimeRateAt(today)
     return [{ date: startDate, rate }]
   }
 
   const initialRate = await getPrimeRateAt(startDate)
   const initialPoint: RateDataPoint = { date: startDate, rate: initialRate }
 
-  const changesEndDate = end.isBefore(today) ? endDate : today.toDate()
+  const changesEndDate = endDate < today ? endDate : today
   const changes = await getPrimeRateChanges(startDate, changesEndDate)
 
   return [initialPoint, ...changes]
