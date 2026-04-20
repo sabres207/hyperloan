@@ -24,6 +24,7 @@ export const resolvers: Resolvers = {
       const [items, total] = await loanRepository.findAndCount({
         skip: page * pageSize,
         take: pageSize,
+        order: { createdAt: 'DESC' },
       })
       return { items, total }
     },
