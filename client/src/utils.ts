@@ -1,19 +1,18 @@
-export const formatCurrency = (n: number) =>
+export const formatCurrency = (n: string | number) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
-  }).format(n)
+  }).format(Number(n))
 
-export const formatCurrencyExact = (n: number) =>
+export const formatCurrencyExact = (n: string | number) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(n)
+  }).format(Number(n))
 
-// The T12:00:00 avoids timezone off-by-one issues when parsing ISO date strings
 export const formatDate = (s: string) =>
   new Date(s + 'T12:00:00').toLocaleDateString('en-US', {
     month: 'short',
