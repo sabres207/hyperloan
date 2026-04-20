@@ -1,4 +1,4 @@
-import { useEffect, type FC, type ReactNode } from 'react'
+import { useCallback, useEffect, type FC, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
 
@@ -8,6 +8,7 @@ type ModalProps = {
   title: string
   children: ReactNode
   footer?: ReactNode
+  disableClose?: boolean
 }
 
 export const Modal: FC<ModalProps> = ({
@@ -16,26 +17,49 @@ export const Modal: FC<ModalProps> = ({
   title,
   children,
   footer,
+  disableClose = false,
 }) => {
+  const handleClose = useCallback(() => {
+    if (!disableClose) {
+      onClose()
+    }
+  }, [disableClose, onClose])
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        handleClose()
+      }
     }
-    if (isOpen) document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [isOpen, onClose])
+
+    if (isOpen) {
+      document.addEventListener('keydown', onKeyDown)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [isOpen, handleClose])
 
   if (!isOpen) return null
 
   return createPortal(
     <Overlay
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClose()
+        }
+      }}
       $open={isOpen}
     >
       <ModalContainer>
         <Header>
           <Title>{title}</Title>
-          <CloseBtn onClick={onClose} aria-label="Close">
+          <CloseBtn
+            onClick={handleClose}
+            aria-label="Close"
+            disabled={disableClose}
+          >
             &times;
           </CloseBtn>
         </Header>
@@ -69,7 +93,7 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${({ theme }) => theme.space[5]} ${({ theme }) => theme.space[6]} ${({ theme }) => theme.space[4]};
+  padding: ${({ theme }) => `${theme.space[5]} ${theme.space[6]}`};
   border-bottom: 1px solid ${({ theme }) => theme.colors.borderDefault};
 `
 

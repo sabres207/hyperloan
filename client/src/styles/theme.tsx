@@ -110,9 +110,9 @@ const shadows = {
 } as const
 
 const letterSpacings = {
-  tight: '-0.03em',  // display text, large values, wordmarks
-  snug: '-0.02em',   // mid-size headings, modal titles
-  wide: '0.07em',    // uppercase labels and table headers
+  tight: '-0.03em',
+  snug: '-0.02em',
+  wide: '0.07em',
 } as const
 
 const components = {

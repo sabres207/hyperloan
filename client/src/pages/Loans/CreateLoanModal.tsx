@@ -1,10 +1,11 @@
-import { type Dispatch, type FC, type SetStateAction } from 'react'
+import { type Dispatch, type FC, type SetStateAction, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal } from '../../components/Modal'
 import { Field } from '../../components/Field'
 import { Button } from '../../components/Button'
+import { Toast } from '../../components/Toast'
 import styled from 'styled-components'
 import { graphql } from '../../__generated__'
 import { useMutation } from '@apollo/client'
@@ -50,7 +51,8 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
   showModal,
   setShowModal,
 }) => {
-  const [createLoan] = useMutation(CREATE_LOAN)
+  const [showToast, setShowToast] = useState(false)
+  const [createLoan, { loading }] = useMutation(CREATE_LOAN)
   const {
     register,
     handleSubmit,
@@ -66,7 +68,12 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
     setShowModal(false)
   }
 
-  const onSubmit = ({ name, startDate, endDate, principalAmount }: FormValues) => {
+  const onSubmit = ({
+    name,
+    startDate,
+    endDate,
+    principalAmount,
+  }: FormValues) => {
     createLoan({
       variables: {
         input: {
@@ -77,57 +84,80 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
         },
       },
       refetchQueries: ['Loans'],
+    }).then(() => {
+      close()
+      setShowToast(true)
     })
   }
 
   return (
-    <Modal
-      isOpen={showModal}
-      onClose={close}
-      title="New Loan"
-      footer={
-        <>
-          <Button $variant="outline" $size="sm" type="button" onClick={close}>
-            Cancel
-          </Button>
-          <Button $size="sm" type="button" onClick={handleSubmit(onSubmit)}>
-            Create Loan
-          </Button>
-        </>
-      }
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Field
-          label="Loan name"
-          placeholder="e.g. Acme Corp Term Loan"
-          autoFocus
-          error={errors.name?.message}
-          {...register('name')}
+    <>
+      {showToast && (
+        <Toast
+          message="Loan created successfully"
+          onDismiss={() => setShowToast(false)}
         />
-        <Field
-          label="Principal amount (USD)"
-          placeholder="500000"
-          hint="Enter the full amount in USD"
-          error={errors.principalAmount?.message}
-          {...register('principalAmount')}
-        />
-        <FieldRow>
+      )}
+      <Modal
+        isOpen={showModal}
+        onClose={close}
+        disableClose={loading}
+        title="New Loan"
+        footer={
+          <>
+            <Button
+              $variant="outline"
+              $size="sm"
+              type="button"
+              onClick={close}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              $size="sm"
+              type="button"
+              onClick={handleSubmit(onSubmit)}
+              disabled={loading}
+            >
+              {loading ? 'Creating…' : 'Create Loan'}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Field
-            label="Start date"
-            type="date"
-            error={errors.startDate?.message}
-            {...register('startDate')}
+            label="Loan name"
+            placeholder="e.g. Acme Corp Term Loan"
+            autoFocus
+            error={errors.name?.message}
+            {...register('name')}
           />
           <Field
-            label="Maturity date"
-            type="date"
-            min={startDate || undefined}
-            error={errors.endDate?.message}
-            {...register('endDate')}
+            label="Principal amount (USD)"
+            placeholder="500000"
+            hint="Enter the full amount in USD"
+            error={errors.principalAmount?.message}
+            {...register('principalAmount')}
           />
-        </FieldRow>
-      </form>
-    </Modal>
+          <FieldRow>
+            <Field
+              label="Start date"
+              type="date"
+              error={errors.startDate?.message}
+              {...register('startDate')}
+            />
+            <Field
+              label="Maturity date"
+              type="date"
+              min={startDate || undefined}
+              error={errors.endDate?.message}
+              {...register('endDate')}
+            />
+          </FieldRow>
+        </form>
+      </Modal>
+    </>
   )
 }
 
