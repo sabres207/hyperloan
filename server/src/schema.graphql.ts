@@ -4,8 +4,13 @@ export const typeDefs = gql`
   scalar Date
 
   type Query {
-    loans: [Loan!]! # TODO: add pagination
+    loans(loansPageInput: LoansPageInput): LoansPage!
     loan(id: ID!): Loan
+  }
+
+  type LoansPage {
+    items: [Loan!]!
+    total: Int!
   }
 
   type Mutation {
@@ -35,6 +40,11 @@ export const typeDefs = gql`
   enum PaymentType {
     INTEREST
     PRINCIPAL_PLUS_INTEREST
+  }
+
+  input LoansPageInput {
+    page: Int
+    pageSize: Int
   }
 
   input CreateLoanInput {

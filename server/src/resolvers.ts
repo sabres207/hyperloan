@@ -4,12 +4,25 @@ import { AppDataSource } from './data-source.js'
 import { Loan } from './entities/Loan.js'
 import { createBulletLoan } from './services/loan.js'
 
+const DEFAULT_PAGE = 0
+const DEFAULT_PAGE_SIZE = 10
+const MAX_PAGE_SIZE = 100
+
 export const resolvers: Resolvers = {
   Date: DateResolver,
   Query: {
-    loans: async () => {
+    loans: async (_, { loansPageInput }) => {
+      const page = loansPageInput?.page || DEFAULT_PAGE
+      const pageSize = Math.min(
+        loansPageInput?.pageSize ?? DEFAULT_PAGE_SIZE,
+        MAX_PAGE_SIZE
+      )
       const loanRepository = AppDataSource.getRepository(Loan)
-      return loanRepository.find()
+      const [items, total] = await loanRepository.findAndCount({
+        skip: page * pageSize,
+        take: pageSize,
+      })
+      return { items, total }
     },
     loan: async (_, { id }) => {
       const loanRepository = AppDataSource.getRepository(Loan)
