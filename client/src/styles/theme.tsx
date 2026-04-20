@@ -60,6 +60,9 @@ const fontSizes = {
   xl: '24px',
   '2xl': '30px',
   '3xl': '38px',
+  label: '12px',
+  subtitle: '18px',
+  display: '28px',
 } as const
 
 const fontWeights = {
@@ -103,15 +106,27 @@ const shadows = {
   lg: '0 12px 32px rgba(14,20,32,0.10), 0 4px 8px rgba(14,20,32,0.05)',
   xl: '0 20px 60px rgba(14,20,32,0.16), 0 4px 12px rgba(14,20,32,0.08)',
   nav: '0 1px 0 #e2e8f2',
+  focusRing: '0 0 0 3px',
+} as const
+
+const letterSpacings = {
+  tight: '-0.03em',  // display text, large values, wordmarks
+  snug: '-0.02em',   // mid-size headings, modal titles
+  wide: '0.07em',    // uppercase labels and table headers
 } as const
 
 const components = {
   navHeight: '64px',
   maxWidth: '1100px',
   rowHeight: '56px',
+  headerHeight: '44px',
   modalWidth: '480px',
   modalRadius: '14px',
   inputHeight: '42px',
+  controlHeight: '38px',
+  iconBtnSize: '30px',
+  iconBtnSizeLg: '34px',
+  pageBtnSize: '32px',
 } as const
 
 export interface AppTheme {
@@ -119,6 +134,7 @@ export interface AppTheme {
   fonts: typeof fonts
   fontSizes: typeof fontSizes
   fontWeights: typeof fontWeights
+  letterSpacings: typeof letterSpacings
   space: typeof space
   radii: typeof radii
   shadows: typeof shadows
@@ -134,6 +150,7 @@ export const lightTheme: AppTheme = {
   fonts,
   fontSizes,
   fontWeights,
+  letterSpacings,
   space,
   radii,
   shadows,
@@ -145,6 +162,7 @@ export const darkTheme: AppTheme = {
   fonts,
   fontSizes,
   fontWeights,
+  letterSpacings,
   space,
   radii,
   shadows,
