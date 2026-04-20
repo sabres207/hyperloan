@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { graphql } from '~/__generated__'
 import { Badge } from '~/components/Badge'
 import { QueryResult } from '~/components/QueryResult'
-import { formatCurrency, formatCurrencyExact, formatDate } from '~/utils'
+import { formatCurrency, formatDate } from '~/utils'
 
 import { TEXT } from './textConsts'
 
@@ -68,9 +68,7 @@ export const Loan: FC = () => {
             </SumCard>
             <SumCard>
               <SumLabel>{TEXT.cards.totalInterest}</SumLabel>
-              <SumValue>
-                {formatCurrencyExact(loan.totalExpectedInterest)}
-              </SumValue>
+              <SumValue>{formatCurrency(loan.totalExpectedInterest)}</SumValue>
             </SumCard>
             <SumCard>
               <SumLabel>{TEXT.cards.startDate}</SumLabel>
@@ -118,22 +116,20 @@ export const Loan: FC = () => {
                       <TdR>
                         {Number(r.principalComponent) > 0 ? (
                           <strong>
-                            {formatCurrencyExact(r.principalComponent)}
+                            {formatCurrency(r.principalComponent)}
                           </strong>
                         ) : (
                           <Dash>—</Dash>
                         )}
                       </TdR>
-                      <TdR>{formatCurrencyExact(r.interestComponent)}</TdR>
-                      <TdR $bold={isLast}>
-                        {formatCurrencyExact(r.totalPayment)}
-                      </TdR>
+                      <TdR>{formatCurrency(r.interestComponent)}</TdR>
+                      <TdR $bold={isLast}>{formatCurrency(r.totalPayment)}</TdR>
                       <TdR
                         style={{ paddingRight: 24 }}
                         $bold={isLast}
                         $success={isLast}
                       >
-                        {formatCurrencyExact(r.remainingBalance)}
+                        {formatCurrency(r.remainingBalance)}
                       </TdR>
                     </Tr>
                   )
