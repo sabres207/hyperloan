@@ -1,5 +1,6 @@
-import { useEffect, type FC } from 'react'
+import { type FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+
 import styled, { keyframes } from 'styled-components'
 
 type ToastProps = {
@@ -8,7 +9,11 @@ type ToastProps = {
   duration?: number
 }
 
-export const Toast: FC<ToastProps> = ({ message, onDismiss, duration = 3000 }) => {
+export const Toast: FC<ToastProps> = ({
+  message,
+  onDismiss,
+  duration = 3000,
+}) => {
   useEffect(() => {
     const timer = setTimeout(onDismiss, duration)
     return () => clearTimeout(timer)

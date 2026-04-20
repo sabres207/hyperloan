@@ -1,13 +1,16 @@
-import { useState, type FC } from 'react'
+import { type FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { graphql } from '../../__generated__'
+
 import { useQuery } from '@apollo/client'
-import { QueryResult } from '../../components/QueryResult'
-import { Pagination } from '../../components/Pagination'
-import { formatCurrency, formatDate } from '../../utils'
-import { TEXT } from './textConsts'
 import { ArrowRight } from 'lucide-react'
 import styled from 'styled-components'
+
+import { graphql } from '~/__generated__'
+import { Pagination } from '~/components/Pagination'
+import { QueryResult } from '~/components/QueryResult'
+import { formatCurrency, formatDate } from '~/utils'
+
+import { TEXT } from './textConsts'
 
 const PAGE_SIZE = 10
 const GET_LOANS = graphql(`

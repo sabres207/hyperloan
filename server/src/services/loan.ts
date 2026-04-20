@@ -1,13 +1,14 @@
+import dayjs from 'dayjs'
 import { DataSource } from 'typeorm'
+
 import {
   CreateLoanInput,
   PaymentType,
 } from '../__generated__/resolvers-types.js'
 import { Loan } from '../db/entities/Loan.js'
 import { Repayment } from '../db/entities/Repayment.js'
-import dayjs from 'dayjs'
 import { Decimal } from '../decimal.js'
-import { getRateTimeline, RateDataPoint } from './fred.js'
+import { RateDataPoint, getRateTimeline } from './fred.js'
 
 type RepaymentData = Omit<Repayment, 'id' | 'createdAt' | 'loan' | 'loanId'>
 type MonthSegment = { rate: Decimal; days: number }

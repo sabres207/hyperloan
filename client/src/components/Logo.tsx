@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+
 import { useTheme } from 'styled-components'
 
 type LogoProps = {

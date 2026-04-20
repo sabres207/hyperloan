@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { Loans } from './pages/Loans'
-import { Loan } from './pages/Loan'
+import { Navigate, Route, Routes } from 'react-router-dom'
+
 import { Layout } from './components/Layout'
+import { Loan } from './pages/Loan'
+import { Loans } from './pages/Loans'
 import { CreateLoanModal } from './pages/Loans/CreateLoanModal'
 
 function App() {
@@ -15,10 +16,7 @@ function App() {
         <Route path="/loans" element={<Loans />} />
         <Route path="/loans/:id" element={<Loan />} />
       </Routes>
-      <CreateLoanModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-      />
+      <CreateLoanModal showModal={showModal} setShowModal={setShowModal} />
     </Layout>
   )
 }

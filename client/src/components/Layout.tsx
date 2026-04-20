@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+
+import { Moon, Sun } from 'lucide-react'
 import styled from 'styled-components'
-import { Sun, Moon } from 'lucide-react'
+
+import { useThemeToggle } from '~/styles/theme'
+
 import { Logo } from './Logo'
-import { useThemeToggle } from '../styles/theme'
 
 type LayoutProps = {
   children: ReactNode

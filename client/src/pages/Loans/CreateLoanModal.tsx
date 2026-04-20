@@ -1,14 +1,16 @@
 import { type Dispatch, type FC, type SetStateAction, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Modal } from '../../components/Modal'
-import { Field } from '../../components/Field'
-import { Button } from '../../components/Button'
-import { Toast } from '../../components/Toast'
-import styled from 'styled-components'
-import { graphql } from '../../__generated__'
+
 import { useMutation } from '@apollo/client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import styled from 'styled-components'
+import { z } from 'zod'
+
+import { graphql } from '~/__generated__'
+import { Button } from '~/components/Button'
+import { Field } from '~/components/Field'
+import { Modal } from '~/components/Modal'
+import { Toast } from '~/components/Toast'
 
 type CreateLoanModalProps = {
   showModal: boolean

@@ -20,7 +20,8 @@ export const Button = styled.button<{
 }>`
   ${base}
 
-  height: ${({ $size, theme }) => ($size === 'sm' ? theme.space[8] : theme.components.controlHeight)};
+  height: ${({ $size, theme }) =>
+    $size === 'sm' ? theme.space[8] : theme.components.controlHeight};
   padding: 0
     ${({ $size, theme }) => ($size === 'sm' ? theme.space[3] : theme.space[4])};
   font-size: ${({ $size, theme }) =>

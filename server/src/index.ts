@@ -1,9 +1,10 @@
 import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
-import { typeDefs } from './schema.graphql.js'
-import { resolvers } from './resolvers.js'
-import { AppDataSource } from './db/data-source.js'
+
 import { Context, createContext } from './context.js'
+import { AppDataSource } from './db/data-source.js'
+import { resolvers } from './resolvers.js'
+import { typeDefs } from './schema.graphql.js'
 
 async function main() {
   await AppDataSource.initialize()

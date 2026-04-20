@@ -1,12 +1,15 @@
 import type { FC } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { graphql } from '../../__generated__'
+import { Link, useParams } from 'react-router-dom'
+
 import { useQuery } from '@apollo/client'
-import { QueryResult } from '../../components/QueryResult'
-import { Badge } from '../../components/Badge'
-import { formatCurrency, formatCurrencyExact, formatDate } from '../../utils'
-import { TEXT } from './textConsts'
 import styled from 'styled-components'
+
+import { graphql } from '~/__generated__'
+import { Badge } from '~/components/Badge'
+import { QueryResult } from '~/components/QueryResult'
+import { formatCurrency, formatCurrencyExact, formatDate } from '~/utils'
+
+import { TEXT } from './textConsts'
 
 const GET_LOAN = graphql(`
   query Loan($id: ID!) {
@@ -65,7 +68,9 @@ export const Loan: FC = () => {
             </SumCard>
             <SumCard>
               <SumLabel>{TEXT.cards.totalInterest}</SumLabel>
-              <SumValue>{formatCurrencyExact(loan.totalExpectedInterest)}</SumValue>
+              <SumValue>
+                {formatCurrencyExact(loan.totalExpectedInterest)}
+              </SumValue>
             </SumCard>
             <SumCard>
               <SumLabel>{TEXT.cards.startDate}</SumLabel>

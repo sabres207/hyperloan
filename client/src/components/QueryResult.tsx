@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+
 import type { ApolloError } from '@apollo/client'
 
 type QueryResultProps = {

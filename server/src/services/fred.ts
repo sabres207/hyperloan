@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+
 import { Decimal } from '../decimal.js'
 
 export type RateDataPoint = {

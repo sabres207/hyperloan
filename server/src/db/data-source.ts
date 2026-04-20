@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 import { DataSource } from 'typeorm'
+
 import { Loan } from './entities/Loan.js'
 import { Repayment } from './entities/Repayment.js'
 import { RepaymentSubscriber } from './subscribers/RepaymentSubscriber.js'

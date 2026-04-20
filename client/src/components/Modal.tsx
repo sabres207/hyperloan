@@ -1,5 +1,6 @@
-import { useCallback, useEffect, type FC, type ReactNode } from 'react'
+import { type FC, type ReactNode, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+
 import styled from 'styled-components'
 
 type ModalProps = {

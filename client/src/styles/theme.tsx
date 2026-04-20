@@ -1,9 +1,11 @@
-import { createContext, useContext, type ReactNode } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { type ReactNode, createContext, useContext } from 'react'
+
 import {
-  createGlobalStyle,
   ThemeProvider as SCThemeProvider,
+  createGlobalStyle,
 } from 'styled-components'
+
+import { useLocalStorage } from '~/hooks/useLocalStorage'
 
 const lightColors = {
   bgPage: '#f5f7fc',
