@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react'
+import { type FC, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -30,8 +30,20 @@ const GET_LOANS = graphql(`
   }
 `)
 
-export const Loans: FC = () => {
+type LoansProps = {
+  newLoanId: string | null
+}
+
+export const Loans: FC<LoansProps> = ({ newLoanId }) => {
+  const [highlightId, setHighlightId] = useState<string | null>(null)
   const [page, setPage] = useState(0)
+
+  useEffect(() => {
+    if (!newLoanId) return
+    setHighlightId(newLoanId)
+    const timer = setTimeout(() => setHighlightId(null), 3000)
+    return () => clearTimeout(timer)
+  }, [newLoanId])
 
   const { loading, error, data } = useQuery(GET_LOANS, {
     variables: { page, pageSize: PAGE_SIZE },
@@ -72,6 +84,7 @@ export const Loans: FC = () => {
                 {items.map((loan) => (
                   <ClickRow
                     key={loan.id}
+                    $highlight={loan.id === highlightId}
                     onClick={() => navigate(`/loans/${loan.id}`)}
                   >
                     <Td $headline>{loan.name}</Td>
@@ -149,11 +162,17 @@ const Th = styled.th<{ $right?: boolean; $first?: boolean }>`
   white-space: nowrap;
 `
 
-const ClickRow = styled.tr`
+const ClickRow = styled.tr<{ $highlight?: boolean }>`
   cursor: pointer;
 
   &:last-child td {
     border-bottom: none;
+  }
+
+  td {
+    background: ${({ $highlight, theme }) =>
+      $highlight ? theme.colors.successSubtle : 'transparent'};
+    transition: background 0.15s ease;
   }
 
   &:hover td {

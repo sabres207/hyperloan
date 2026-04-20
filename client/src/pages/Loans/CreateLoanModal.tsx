@@ -15,6 +15,7 @@ import { Toast } from '~/components/Toast'
 type CreateLoanModalProps = {
   showModal: boolean
   setShowModal: Dispatch<SetStateAction<boolean>>
+  onCreated: (id: string) => void
 }
 
 const schema = z
@@ -52,6 +53,7 @@ const CREATE_LOAN = graphql(`
 export const CreateLoanModal: FC<CreateLoanModalProps> = ({
   showModal,
   setShowModal,
+  onCreated,
 }) => {
   const [showToast, setShowToast] = useState(false)
   const [createLoan, { loading }] = useMutation(CREATE_LOAN)
@@ -86,9 +88,12 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
         },
       },
       refetchQueries: ['Loans'],
-    }).then(() => {
+    }).then((result) => {
       close()
       setShowToast(true)
+      if (result.data?.createLoan.id) {
+        onCreated(result.data.createLoan.id)
+      }
     })
   }
 
