@@ -81,13 +81,17 @@ export const Loan: FC = () => {
             <Table>
               <thead>
                 <tr>
-                  <Th style={{ width: 56, paddingLeft: 24 }}>{TEXT.columns.number}</Th>
+                  <Th style={{ width: 56, paddingLeft: 24 }}>
+                    {TEXT.columns.number}
+                  </Th>
                   <Th>{TEXT.columns.paymentDate}</Th>
                   <Th>{TEXT.columns.type}</Th>
                   <ThR>{TEXT.columns.principal}</ThR>
                   <ThR>{TEXT.columns.interest}</ThR>
                   <ThR>{TEXT.columns.totalDue}</ThR>
-                  <ThR style={{ paddingRight: 24 }}>{TEXT.columns.remainingBalance}</ThR>
+                  <ThR style={{ paddingRight: 24 }}>
+                    {TEXT.columns.remainingBalance}
+                  </ThR>
                 </tr>
               </thead>
               <tbody>
@@ -107,7 +111,7 @@ export const Loan: FC = () => {
                         />
                       </Td>
                       <TdR>
-                        {r.principalComponent > 0 ? (
+                        {Number(r.principalComponent) > 0 ? (
                           <strong>
                             {formatCurrencyExact(r.principalComponent)}
                           </strong>

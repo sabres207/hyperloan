@@ -80,7 +80,7 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
           name,
           startDate,
           endDate,
-          principalAmount: Number(principalAmount),
+          principalAmount: principalAmount.replace(/[^0-9.]/g, ''),
         },
       },
       refetchQueries: ['Loans'],
