@@ -8,7 +8,7 @@ import App from './App'
 import { GlobalStyles, ThemeProvider } from './styles/theme'
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000',
+  uri: import.meta.env.VITE_API_URL || 'http://localhost:4000',
   cache: new InMemoryCache(),
 })
 
