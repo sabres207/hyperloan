@@ -5,7 +5,8 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from 'typeorm'
-import { PaymentType } from '../__generated__/resolvers-types.js'
+import { PaymentType } from '../../__generated__/resolvers-types.js'
+import { Decimal, decimalTransformer } from '../../decimal.js'
 import { Loan } from './Loan.js'
 
 @Entity('repayments')
@@ -14,7 +15,7 @@ export class Repayment {
   id: string
 
   @Column('date')
-  paymentDate: Date
+  paymentDate: string
 
   @CreateDateColumn({ type: 'datetime' })
   createdAt: Date
@@ -26,17 +27,17 @@ export class Repayment {
   })
   paymentType: PaymentType
 
-  @Column('float')
-  principalComponent: number
+  @Column({ type: 'text', transformer: decimalTransformer })
+  principalComponent: Decimal
 
-  @Column('float')
-  interestComponent: number
+  @Column({ type: 'text', transformer: decimalTransformer })
+  interestComponent: Decimal
 
-  @Column('float')
-  totalPayment: number
+  @Column({ type: 'text', transformer: decimalTransformer })
+  totalPayment: Decimal
 
-  @Column('float')
-  remainingBalance: number
+  @Column({ type: 'text', transformer: decimalTransformer })
+  remainingBalance: Decimal
 
   @ManyToOne(() => Loan, (loan) => loan.repaymentSchedule, {
     onDelete: 'CASCADE',

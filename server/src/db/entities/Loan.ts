@@ -5,6 +5,7 @@ import {
   OneToMany,
   CreateDateColumn,
 } from 'typeorm'
+import { Decimal, decimalTransformer } from '../../decimal.js'
 import { Repayment } from './Repayment.js'
 
 @Entity('loans')
@@ -18,14 +19,17 @@ export class Loan {
   @Column('text')
   name: string
 
-  @Column('float')
-  principalAmount: number
+  @Column({ type: 'text', transformer: decimalTransformer })
+  principalAmount: Decimal
+
+  @Column({ type: 'text', transformer: decimalTransformer })
+  totalExpectedInterest: Decimal
 
   @Column('date')
-  startDate: Date
+  startDate: string
 
   @Column('date')
-  endDate: Date
+  endDate: string
 
   @OneToMany(() => Repayment, (repayment) => repayment.loan, {
     cascade: true,
