@@ -9,4 +9,9 @@ export const TEXT = {
     maturity: 'Maturity',
     totalInterest: 'Total interest',
   },
+  empty: {
+    title: 'No loans yet',
+    description:
+      'Create your first bullet loan to get started. The repayment schedule will be generated automatically.',
+  },
 } as const

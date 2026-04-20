@@ -10,6 +10,7 @@ import { Pagination } from '~/components/Pagination'
 import { QueryResult } from '~/components/QueryResult'
 import { formatCurrency, formatDate } from '~/utils'
 
+import { EmptyState } from './EmptyState'
 import { TEXT } from './textConsts'
 
 const PAGE_SIZE = 10
@@ -52,46 +53,50 @@ export const Loans: FC = () => {
       </PageHeader>
 
       <QueryResult loading={loading} error={error}>
-        <TableWrap>
-          <Table>
-            <thead>
-              <tr>
-                <Th $first>{TEXT.columns.loanName}</Th>
-                <Th $right>{TEXT.columns.principal}</Th>
-                <Th>{TEXT.columns.startDate}</Th>
-                <Th>{TEXT.columns.maturity}</Th>
-                <Th $right>{TEXT.columns.totalInterest}</Th>
-                <Th style={{ width: 52 }} />
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((loan) => (
-                <ClickRow
-                  key={loan.id}
-                  onClick={() => navigate(`/loans/${loan.id}`)}
-                >
-                  <Td $headline>{loan.name}</Td>
-                  <Td $right>{formatCurrency(loan.principalAmount)}</Td>
-                  <Td $muted>{formatDate(loan.startDate)}</Td>
-                  <Td $muted>{formatDate(loan.endDate)}</Td>
-                  <Td $right>{formatCurrency(loan.totalExpectedInterest)}</Td>
-                  <Td>
-                    <Arrow>
-                      <ArrowRight size={16} />
-                    </Arrow>
-                  </Td>
-                </ClickRow>
-              ))}
-            </tbody>
-          </Table>
-          <Pagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            totalPages={totalPages}
-            total={total}
-            onPageChange={setPage}
-          />
-        </TableWrap>
+        {items.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <TableWrap>
+            <Table>
+              <thead>
+                <tr>
+                  <Th $first>{TEXT.columns.loanName}</Th>
+                  <Th $right>{TEXT.columns.principal}</Th>
+                  <Th>{TEXT.columns.startDate}</Th>
+                  <Th>{TEXT.columns.maturity}</Th>
+                  <Th $right>{TEXT.columns.totalInterest}</Th>
+                  <Th style={{ width: 52 }} />
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((loan) => (
+                  <ClickRow
+                    key={loan.id}
+                    onClick={() => navigate(`/loans/${loan.id}`)}
+                  >
+                    <Td $headline>{loan.name}</Td>
+                    <Td $right>{formatCurrency(loan.principalAmount)}</Td>
+                    <Td $muted>{formatDate(loan.startDate)}</Td>
+                    <Td $muted>{formatDate(loan.endDate)}</Td>
+                    <Td $right>{formatCurrency(loan.totalExpectedInterest)}</Td>
+                    <Td>
+                      <Arrow>
+                        <ArrowRight size={16} />
+                      </Arrow>
+                    </Td>
+                  </ClickRow>
+                ))}
+              </tbody>
+            </Table>
+            <Pagination
+              page={page}
+              pageSize={PAGE_SIZE}
+              totalPages={totalPages}
+              total={total}
+              onPageChange={setPage}
+            />
+          </TableWrap>
+        )}
       </QueryResult>
     </div>
   )
@@ -190,3 +195,4 @@ const Arrow = styled.span.attrs({ className: 'arrow' })`
   display: block;
   text-align: right;
 `
+
