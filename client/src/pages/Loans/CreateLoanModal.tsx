@@ -1,5 +1,7 @@
 import { type Dispatch, type FC, type SetStateAction } from 'react'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Modal } from '../../components/Modal'
 import { Field } from '../../components/Field'
 import { Button } from '../../components/Button'
@@ -12,12 +14,25 @@ type CreateLoanModalProps = {
   setShowModal: Dispatch<SetStateAction<boolean>>
 }
 
-type FormValues = {
-  name: string
-  principalAmount: string
-  startDate: string
-  endDate: string
-}
+const schema = z
+  .object({
+    name: z.string().min(1, 'Loan name is required'),
+    principalAmount: z.string().refine(
+      (v) => {
+        const n = parseFloat(v.replace(/[^0-9.]/g, ''))
+        return !isNaN(n) && n > 0
+      },
+      { message: 'Enter a valid principal amount greater than 0' }
+    ),
+    startDate: z.string().min(1, 'Start date is required'),
+    endDate: z.string().min(1, 'End date is required'),
+  })
+  .refine((d) => !d.startDate || d.endDate > d.startDate, {
+    message: 'Maturity must be after the start date',
+    path: ['endDate'],
+  })
+
+type FormValues = z.infer<typeof schema>
 
 const CREATE_LOAN = graphql(`
   mutation CreateLoan($input: CreateLoanInput!) {
@@ -42,7 +57,7 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
     reset,
     watch,
     formState: { errors },
-  } = useForm<FormValues>({ mode: 'onTouched' })
+  } = useForm<FormValues>({ mode: 'onTouched', resolver: zodResolver(schema) })
 
   const startDate = watch('startDate')
 
@@ -51,12 +66,7 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
     setShowModal(false)
   }
 
-  const onSubmit = ({
-    name,
-    startDate,
-    endDate,
-    principalAmount,
-  }: FormValues) => {
+  const onSubmit = ({ name, startDate, endDate, principalAmount }: FormValues) => {
     createLoan({
       variables: {
         input: {
@@ -92,43 +102,28 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
           placeholder="e.g. Acme Corp Term Loan"
           autoFocus
           error={errors.name?.message}
-          {...register('name', { required: 'Loan name is required' })}
+          {...register('name')}
         />
         <Field
           label="Principal amount (USD)"
           placeholder="500000"
           hint="Enter the full amount in USD"
           error={errors.principalAmount?.message}
-          {...register('principalAmount', {
-            required: 'Enter a valid principal amount greater than 0',
-            validate: (v) => {
-              const n = parseFloat(v.replace(/[^0-9.]/g, ''))
-              return (
-                (!isNaN(n) && n > 0) ||
-                'Enter a valid principal amount greater than 0'
-              )
-            },
-          })}
+          {...register('principalAmount')}
         />
         <FieldRow>
           <Field
             label="Start date"
             type="date"
             error={errors.startDate?.message}
-            {...register('startDate', { required: 'Start date is required' })}
+            {...register('startDate')}
           />
           <Field
             label="Maturity date"
             type="date"
             min={startDate || undefined}
             error={errors.endDate?.message}
-            {...register('endDate', {
-              required: 'End date is required',
-              validate: (v) =>
-                !startDate ||
-                v > startDate ||
-                'Maturity must be after the start date',
-            })}
+            {...register('endDate')}
           />
         </FieldRow>
       </form>
