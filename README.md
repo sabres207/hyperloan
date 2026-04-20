@@ -23,7 +23,7 @@ npm install
 npm run codegen
 
 # 3. Run database migrations
-npm run migration:run -w server
+npm run migrate
 
 # 4. Start both client and server in dev mode
 npm run dev
