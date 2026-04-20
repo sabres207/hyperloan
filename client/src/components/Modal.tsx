@@ -1,89 +1,115 @@
 import { useEffect, type FC, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
-import { X } from 'lucide-react'
 
 type ModalProps = {
   isOpen: boolean
   onClose: () => void
+  title: string
   children: ReactNode
-  title?: string
+  footer?: ReactNode
 }
 
-export const Modal: FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
+export const Modal: FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  footer,
+}) => {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key == 'Escape') {
-        onClose()
-      }
+      if (event.key === 'Escape') onClose()
     }
-
-    if (isOpen) {
-      document.addEventListener('keydown', onKeyDown)
-    }
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-    }
+    if (isOpen) document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
   }, [isOpen, onClose])
 
   if (!isOpen) return null
 
   return createPortal(
-    <Overlay onClick={onClose}>
-      <ModalContainer onClick={(event) => event.stopPropagation()}>
+    <Overlay
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      $open={isOpen}
+    >
+      <ModalContainer>
         <Header>
-          <CloseButton onClick={onClose} width={24} height={24} />
-          {!!title && <Title>{title}</Title>}
+          <Title>{title}</Title>
+          <CloseBtn onClick={onClose} aria-label="Close">
+            &times;
+          </CloseBtn>
         </Header>
-        {children}
+        <Body>{children}</Body>
+        {footer && <Footer>{footer}</Footer>}
       </ModalContainer>
     </Overlay>,
     document.body
   )
 }
 
-const Overlay = styled.div`
+const Overlay = styled.div<{ $open: boolean }>`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(5px);
+  background: rgba(14, 20, 32, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 200;
 `
 
 const ModalContainer = styled.div`
-  background: white;
-  border-radius: 12px;
-  width: min(500px, 80vw);
-  height: min(400px, 80vh);
-  padding: 24px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  background: ${({ theme }) => theme.colors.surface};
+  border-radius: ${({ theme }) => theme.components.modalRadius};
+  box-shadow: ${({ theme }) => theme.shadows.xl};
+  width: ${({ theme }) => theme.components.modalWidth};
+  max-width: calc(100vw - ${({ theme }) => theme.space[8]});
 `
 
 const Header = styled.div`
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
   align-items: center;
-  width: 100%;
-  margin-bottom: 24px;
+  justify-content: space-between;
+  padding: ${({ theme }) => theme.space[5]} ${({ theme }) => theme.space[6]} ${({ theme }) => theme.space[4]};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.borderDefault};
 `
 
-const Title = styled.h2`
-  font-size: 24px;
-  color: #333;
-  font-weight: bold;
-  margin: 0;
+const Title = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.subtitle};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  letter-spacing: ${({ theme }) => theme.letterSpacings.snug};
+  color: ${({ theme }) => theme.colors.text1};
 `
 
-const CloseButton = styled(X)`
-  font-size: 20px;
+const CloseBtn = styled.button`
+  width: ${({ theme }) => theme.components.iconBtnSize};
+  height: ${({ theme }) => theme.components.iconBtnSize};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${({ theme }) => theme.radii.md};
+  color: ${({ theme }) => theme.colors.text2};
   cursor: pointer;
-  color: #666;
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  line-height: 1;
+  border: none;
+  background: none;
+  font-family: ${({ theme }) => theme.fonts.sans};
+  transition: all 0.15s;
+
   &:hover {
-    color: #000;
+    background: ${({ theme }) => theme.colors.subtle};
+    color: ${({ theme }) => theme.colors.text1};
   }
+`
+
+const Body = styled.div`
+  padding: ${({ theme }) => theme.space[6]};
+`
+
+const Footer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: ${({ theme }) => theme.space[2]};
+  padding: ${({ theme }) => theme.space[4]} ${({ theme }) => theme.space[6]};
+  border-top: 1px solid ${({ theme }) => theme.colors.borderDefault};
 `
