@@ -4,6 +4,8 @@ import { Modal } from '../../components/Modal'
 import { Field } from '../../components/Field'
 import { Button } from '../../components/Button'
 import styled from 'styled-components'
+import { graphql } from '../../__generated__'
+import { useMutation } from '@apollo/client'
 
 type CreateLoanModalProps = {
   showModal: boolean
@@ -17,10 +19,23 @@ type FormValues = {
   endDate: string
 }
 
+const CREATE_LOAN = graphql(`
+  mutation CreateLoan($input: CreateLoanInput!) {
+    createLoan(createLoanInput: $input) {
+      id
+      name
+      principalAmount
+      startDate
+      endDate
+    }
+  }
+`)
+
 export const CreateLoanModal: FC<CreateLoanModalProps> = ({
   showModal,
   setShowModal,
 }) => {
+  const [createLoan] = useMutation(CREATE_LOAN)
   const {
     register,
     handleSubmit,
@@ -36,10 +51,23 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
     setShowModal(false)
   }
 
-  const onSubmit = (data: FormValues) => {
-    // TODO: call createLoan mutation
-    console.log('Create loan:', data)
-    close()
+  const onSubmit = ({
+    name,
+    startDate,
+    endDate,
+    principalAmount,
+  }: FormValues) => {
+    createLoan({
+      variables: {
+        input: {
+          name,
+          startDate,
+          endDate,
+          principalAmount: Number(principalAmount),
+        },
+      },
+      refetchQueries: ['Loans'],
+    })
   }
 
   return (
@@ -75,8 +103,10 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
             required: 'Enter a valid principal amount greater than 0',
             validate: (v) => {
               const n = parseFloat(v.replace(/[^0-9.]/g, ''))
-              return (!isNaN(n) && n > 0) ||
+              return (
+                (!isNaN(n) && n > 0) ||
                 'Enter a valid principal amount greater than 0'
+              )
             },
           })}
         />
