@@ -76,6 +76,12 @@ async function buildBulletLoanSchedule(loan: CreateLoanInput): Promise<{
     new Decimal(0)
   )
 
+  let balance = principal.plus(totalExpectedInterest).toDecimalPlaces(2)
+  for (const repayment of repaymentSchedule) {
+    balance = balance.minus(repayment.totalPayment).toDecimalPlaces(2)
+    repayment.remainingBalance = balance
+  }
+
   return { repaymentSchedule, totalExpectedInterest }
 }
 
@@ -99,7 +105,7 @@ function buildRepayment(
     principalComponent,
     interestComponent,
     totalPayment: interestComponent.plus(principalComponent),
-    remainingBalance: isLastMonth ? new Decimal(0) : principalAmount,
+    remainingBalance: new Decimal(0), // set after full schedule is built
   }
 }
 
