@@ -36,15 +36,12 @@ async function buildBulletLoanSchedule(
   const rateTimeline = await getRateTimeline(startDate, endDate)
   const maturityDate = dayjs(endDate)
 
-  console.log('rateTimeline')
-  console.log(rateTimeline)
-
   const repaymentSchedule: RepaymentData[] = []
   let currentRateIndex = 0
   let currentDate = dayjs(startDate)
 
   while (!currentDate.isAfter(maturityDate, 'month')) {
-    const isLastMonth = currentDate.month() === maturityDate.month()
+    const isLastMonth = currentDate.isSame(maturityDate, 'month')
     const endOfMonth = isLastMonth
       ? maturityDate
       : currentDate.endOf('month').startOf('day')
