@@ -35,9 +35,6 @@ export const resolvers: Resolvers = {
     },
   },
   Loan: {
-    totalExpectedInterest: async ({ id }, _, { loaders }) => {
-      return loaders.totalInterestByLoanId.load(id)
-    },
     repaymentSchedule: async ({ id }, _, { loaders }) => {
       return loaders.repaymentsByLoanId.load(id)
     },

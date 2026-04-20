@@ -1,13 +1,12 @@
 import DataLoader from 'dataloader'
 import { DataSource, In } from 'typeorm'
-import { AppDataSource } from './data-source.js'
-import { Repayment } from './entities/Repayment.js'
+import { AppDataSource } from './db/data-source.js'
+import { Repayment } from './db/entities/Repayment.js'
 
 export interface Context {
   db: DataSource
   loaders: {
     repaymentsByLoanId: DataLoader<string, Repayment[]>
-    totalInterestByLoanId: DataLoader<string, number>
   }
 }
 
@@ -31,25 +30,8 @@ export async function createContext(): Promise<Context> {
     }
   )
 
-  const totalInterestByLoanId = new DataLoader<string, number>(
-    async (loanIds) => {
-      const results = await AppDataSource.getRepository(Repayment)
-        .createQueryBuilder('r')
-        .select('r.loanId', 'loanId')
-        .addSelect('SUM(r.interestComponent)', 'totalInterest')
-        .where('r.loanId IN (:...loanIds)', { loanIds: [...loanIds] })
-        .groupBy('r.loanId')
-        .getRawMany<{ loanId: string; totalInterest: number }>()
-
-      const loanToTotalInterestMap = new Map(
-        results.map((r) => [r.loanId, r.totalInterest])
-      )
-      return loanIds.map((loanId) => loanToTotalInterestMap.get(loanId) || 0)
-    }
-  )
-
   return {
     db: AppDataSource,
-    loaders: { repaymentsByLoanId, totalInterestByLoanId },
+    loaders: { repaymentsByLoanId },
   }
 }
