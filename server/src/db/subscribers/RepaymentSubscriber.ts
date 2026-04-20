@@ -9,9 +9,7 @@ import { Loan } from '../entities/Loan.js'
 import { Repayment } from '../entities/Repayment.js'
 
 @EventSubscriber()
-export class RepaymentSubscriber
-  implements EntitySubscriberInterface<Repayment>
-{
+export class RepaymentSubscriber implements EntitySubscriberInterface<Repayment> {
   listenTo() {
     return Repayment
   }
@@ -27,12 +25,13 @@ export class RepaymentSubscriber
     if (newInterest && oldInterest) {
       const delta = newInterest.minus(oldInterest)
       if (delta.isZero()) return
-      const loan = await event.manager.findOneOrFail(Loan, { where: { id: loanId } })
+      const loan = await event.manager.findOneOrFail(Loan, {
+        where: { id: loanId },
+      })
       await event.manager.update(Loan, loanId, {
         totalExpectedInterest: loan.totalExpectedInterest.plus(delta),
       })
     } else {
-      // Fallback: full recompute when old values are unavailable
       await recomputeTotalInterest(loanId, event.manager)
     }
   }
@@ -41,7 +40,9 @@ export class RepaymentSubscriber
     const loanId = event.databaseEntity?.loanId
     if (!loanId) return
     const removedInterest: Decimal = event.databaseEntity.interestComponent
-    const loan = await event.manager.findOneOrFail(Loan, { where: { id: loanId } })
+    const loan = await event.manager.findOneOrFail(Loan, {
+      where: { id: loanId },
+    })
     await event.manager.update(Loan, loanId, {
       totalExpectedInterest: loan.totalExpectedInterest.minus(removedInterest),
     })

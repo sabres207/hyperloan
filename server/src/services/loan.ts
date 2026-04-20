@@ -32,9 +32,10 @@ export async function createBulletLoan(
   })
 }
 
-async function buildBulletLoanSchedule(
-  loan: CreateLoanInput
-): Promise<{ repaymentSchedule: RepaymentData[]; totalExpectedInterest: Decimal }> {
+async function buildBulletLoanSchedule(loan: CreateLoanInput): Promise<{
+  repaymentSchedule: RepaymentData[]
+  totalExpectedInterest: Decimal
+}> {
   const { startDate, endDate, principalAmount } = loan
   const principal = new Decimal(principalAmount)
   const rateTimeline = await getRateTimeline(startDate, endDate)
@@ -86,7 +87,9 @@ function buildRepayment(
   monthSegments: MonthSegment[]
 ): RepaymentData {
   const monthlyRate = calculateMonthlyRatePercent(monthSegments, daysInMonth)
-  const interestComponent = principalAmount.mul(monthlyRate.div(100))
+  const interestComponent = principalAmount
+    .mul(monthlyRate.div(100))
+    .toDecimalPlaces(2)
   const principalComponent = isLastMonth ? principalAmount : new Decimal(0)
   return {
     paymentDate,
