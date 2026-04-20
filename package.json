@@ -7,9 +7,10 @@
     "server"
   ],
   "scripts": {
+    "migrate": "npm run migration:run -w server",
+    "codegen": "npm run codegen -w server && npm run codegen -w client",
     "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
-    "build": "npm run build -w server && npm run build -w client",
-    "codegen": "npm run codegen -w server && npm run codegen -w client"
+    "build": "npm run build -w server && npm run build -w client"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
