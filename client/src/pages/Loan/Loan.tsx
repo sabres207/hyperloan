@@ -65,7 +65,7 @@ export const Loan: FC = () => {
             </SumCard>
             <SumCard>
               <SumLabel>{TEXT.cards.totalInterest}</SumLabel>
-              <SumValue>{formatCurrency(loan.totalExpectedInterest)}</SumValue>
+              <SumValue>{formatCurrencyExact(loan.totalExpectedInterest)}</SumValue>
             </SumCard>
             <SumCard>
               <SumLabel>{TEXT.cards.startDate}</SumLabel>
