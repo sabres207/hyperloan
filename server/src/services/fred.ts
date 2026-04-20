@@ -51,10 +51,12 @@ async function fetchObservations(
   }
 
   const data = (await res.json()) as FredResponse
-  return data.observations.map((o) => ({
-    date: o.date,
-    rate: new Decimal(o.value),
-  }))
+  return data.observations
+    .filter((o) => o.value !== '.')
+    .map((o) => ({
+      date: o.date,
+      rate: new Decimal(o.value),
+    }))
 }
 
 export async function getPrimeRateAt(date: string): Promise<Decimal> {
