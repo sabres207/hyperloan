@@ -22,7 +22,10 @@ npm install
 # 2. Generate TypeScript types from the GraphQL schema
 npm run codegen
 
-# 3. Start both client and server in dev mode
+# 3. Run database migrations
+npm run migration:run -w server
+
+# 4. Start both client and server in dev mode
 npm run dev
 ```
 

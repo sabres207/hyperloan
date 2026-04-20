@@ -7,8 +7,9 @@ import { RepaymentSubscriber } from './subscribers/RepaymentSubscriber.js'
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
   database: './data/hyperloan.db',
-  synchronize: true,
+  synchronize: false,
   logging: false,
   entities: [Loan, Repayment],
   subscribers: [RepaymentSubscriber],
+  migrations: ['src/db/migrations/*.ts'],
 })
