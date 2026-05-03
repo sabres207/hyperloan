@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 import { graphql } from '~/__generated__'
 import { Button } from '~/components/Button'
-import { Field } from '~/components/Field'
+import { Field, Label } from '~/components/Field'
 import { Modal } from '~/components/Modal'
 import { Toast } from '~/components/Toast'
 
@@ -32,6 +32,12 @@ const schema = z
     ),
     startDate: z.string().min(1, TEXT.createModal.validation.startDateRequired),
     endDate: z.string().min(1, TEXT.createModal.validation.endDateRequired),
+    // TODO: maybe use enums or consts to validate
+    paymentOnNonWorkDays: z.enum([
+      'ALLOWED',
+      'MOVE_TO_PREV_WORK_DAY',
+      'MOVE_TO_NEXT_WORK_DAY',
+    ]),
   })
   .refine((d) => !d.startDate || d.endDate > d.startDate, {
     message: TEXT.createModal.validation.maturityAfterStart,
@@ -79,7 +85,17 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
     startDate,
     endDate,
     principalAmount,
+    paymentOnNonWorkDays,
   }: FormValues) => {
+    // TODO: remove
+    console.log({
+      name,
+      startDate,
+      endDate,
+      principalAmount,
+      paymentOnNonWorkDays,
+    })
+
     createLoan({
       variables: {
         input: {
@@ -87,6 +103,7 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
           startDate,
           endDate,
           principalAmount: principalAmount.replace(/[^0-9.]/g, ''),
+          paymentOnNonWorkDays,
         },
       },
       refetchQueries: ['Loans'],
@@ -149,6 +166,15 @@ export const CreateLoanModal: FC<CreateLoanModalProps> = ({
             error={errors.principalAmount?.message}
             {...register('principalAmount')}
           />
+          {/* TODO: maybe use enums or consts to validate */}
+          <Label>Payments on non work days</Label>
+          <Select {...register('paymentOnNonWorkDays')}>
+            <option value="ALLOWED">Allowed</option>
+            <option value="MOVE_TO_PREV_WORK_DAY">
+              Move to previous work day
+            </option>
+            <option value="MOVE_TO_NEXT_WORK_DAY">Move to next work day</option>
+          </Select>
           <FieldRow>
             <Field
               label={TEXT.createModal.fields.startDate.label}
@@ -174,4 +200,33 @@ const FieldRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: ${({ theme }) => theme.space[3]};
+`
+
+// TODO: create component SelectField, or make Field expect both types
+const Select = styled.select`
+  width: 100%;
+  height: ${({ theme }) => theme.components.inputHeight};
+  padding: 0 ${({ theme }) => theme.space[3]};
+  border: 1.5px solid ${({ theme }) => theme.colors.borderStrong};
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-family: ${({ theme }) => theme.fonts.sans};
+  font-size: ${({ theme }) => theme.fontSizes.base};
+  color: ${({ theme }) => theme.colors.text1};
+  background: ${({ theme }) => theme.colors.surface};
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  outline: none;
+  appearance: none;
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.text3};
+  }
+
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.accent};
+    box-shadow: ${({ theme }) =>
+      `${theme.shadows.focusRing} ${theme.colors.accentSubtle}`};
+  }
+
+  margin-bottom: ${({ theme }) => theme.space[5]};
 `

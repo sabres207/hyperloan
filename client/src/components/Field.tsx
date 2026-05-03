@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   }
 `
 
-const Label = styled.label`
+export const Label = styled.label`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   color: ${({ theme }) => theme.colors.text1};
