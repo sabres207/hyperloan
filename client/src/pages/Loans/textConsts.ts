@@ -7,6 +7,7 @@ export const TEXT = {
     principal: 'Principal',
     startDate: 'Start date',
     maturity: 'Maturity',
+    paymentOnNonWeekDays: 'Non week days payment',
     totalInterest: 'Total interest',
   },
   empty: {

@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { graphql } from '~/__generated__'
 import { Pagination } from '~/components/Pagination'
 import { QueryResult } from '~/components/QueryResult'
-import { formatCurrency, formatDate } from '~/utils'
+import { formatCurrency, formatDate, formatPaymentOnNonWorkDays } from '~/utils'
 
 import { EmptyState } from './EmptyState'
 import { TEXT } from './textConsts'
@@ -24,6 +24,7 @@ const GET_LOANS = graphql(`
         startDate
         endDate
         totalExpectedInterest
+        paymentOnNonWorkDays
       }
       total
     }
@@ -76,6 +77,7 @@ export const Loans: FC<LoansProps> = ({ newLoanId }) => {
                   <Th $right>{TEXT.columns.principal}</Th>
                   <Th>{TEXT.columns.startDate}</Th>
                   <Th>{TEXT.columns.maturity}</Th>
+                  <Th>{TEXT.columns.paymentOnNonWeekDays}</Th>
                   <Th $right>{TEXT.columns.totalInterest}</Th>
                   <ThArrow />
                 </tr>
@@ -91,6 +93,9 @@ export const Loans: FC<LoansProps> = ({ newLoanId }) => {
                     <Td $right>{formatCurrency(loan.principalAmount)}</Td>
                     <Td $muted>{formatDate(loan.startDate)}</Td>
                     <Td $muted>{formatDate(loan.endDate)}</Td>
+                    <Td>
+                      {formatPaymentOnNonWorkDays(loan.paymentOnNonWorkDays)}
+                    </Td>
                     <Td $right>{formatCurrency(loan.totalExpectedInterest)}</Td>
                     <Td>
                       <Arrow>
@@ -218,4 +223,3 @@ const Arrow = styled.span.attrs({ className: 'arrow' })`
   display: block;
   text-align: right;
 `
-
