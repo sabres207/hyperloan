@@ -14,7 +14,6 @@ import { RateDataPoint, getRateTimeline } from './fred.js'
 type RepaymentData = Omit<Repayment, 'id' | 'createdAt' | 'loan' | 'loanId'>
 type MonthSegment = {
   rate: Decimal
-  totalDays: number
   daysInPrevMonth: number
   daysInNextMonth: number
   daysInMonth: number
@@ -132,7 +131,10 @@ const getStartOfMonth = (
   repaymentSchedule: RepaymentData[]
 ): dayjs.Dayjs => {
   return repaymentSchedule.length > 0
-    ? dayjs(repaymentSchedule[0].paymentDate).add(1, 'day')
+    ? dayjs(repaymentSchedule[repaymentSchedule.length - 1].paymentDate).add(
+        1,
+        'day'
+      )
     : dayjs(currentDate)
 }
 
@@ -185,7 +187,6 @@ function buildMonthSegments(
     const totalDays = nextRateDate.diff(segmentStart, 'day')
     monthSegments.push({
       rate: rateTimeline[rateIndex].rate,
-      totalDays,
       daysInPrevMonth,
       daysInNextMonth,
       daysInMonth: totalDays - daysInPrevMonth - daysInNextMonth,
@@ -203,7 +204,6 @@ function buildMonthSegments(
   const totalDays = paymentDate.diff(segmentStart, 'day') + 1
   monthSegments.push({
     rate: rateTimeline[rateIndex].rate,
-    totalDays,
     daysInPrevMonth,
     daysInNextMonth,
     daysInMonth: totalDays - daysInPrevMonth - daysInNextMonth,
@@ -220,43 +220,45 @@ function calculateMonthlyRatePercent(
   monthSegments: MonthSegment[],
   daysInMonth: number
 ): Decimal {
+  const currMonthRate = getCurrentMonthRate(daysInMonth, monthSegments)
+  const prevMonthStubRate = getStubPrevMonth(monthSegments)
+  const nextMonthStubRate = getStubNextMonth(monthSegments)
+
+  return currMonthRate.plus(prevMonthStubRate).plus(nextMonthStubRate)
+}
+
+function getCurrentMonthRate(
+  daysInMonth: number,
+  monthSegments: MonthSegment[]
+): Decimal {
   const totalDaysInMonth = monthSegments.reduce(
     (acc, seg) => acc + seg.daysInMonth,
     0
   )
-
-  return getFullMonthRate(totalDaysInMonth, daysInMonth, monthSegments).plus(
-    getPartialMonthRate(true, monthSegments).plus(
-      getPartialMonthRate(false, monthSegments)
-    )
-  )
-}
-
-function getFullMonthRate(
-  totalDays: number,
-  daysInMonth: number,
-  monthSegments: MonthSegment[]
-): Decimal {
   const weightedRateSum = monthSegments.reduce(
     (acc, seg) => acc.plus(seg.rate.mul(seg.daysInMonth)),
     new Decimal(0)
   )
-  const isFullMonth = totalDays === daysInMonth
+
+  const isFullMonth = totalDaysInMonth === daysInMonth
   const virtualRateDays = isFullMonth
-    ? weightedRateSum.mul(VIRTUAL_DAYS_IN_MONTH).div(totalDays)
+    ? weightedRateSum.mul(VIRTUAL_DAYS_IN_MONTH).div(totalDaysInMonth)
     : weightedRateSum
   return virtualRateDays.div(VIRTUAL_DAYS_IN_YEAR)
 }
 
-function getPartialMonthRate(
-  isPrevMonth: boolean,
-  monthSegments: MonthSegment[]
-): Decimal {
+function getStubPrevMonth(monthSegments: MonthSegment[]): Decimal {
   const weightedRateSum = monthSegments.reduce(
-    (acc, seg) =>
-      acc.plus(
-        seg.rate.mul(isPrevMonth ? seg.daysInPrevMonth : seg.daysInNextMonth)
-      ),
+    (acc, seg) => acc.plus(seg.rate.mul(seg.daysInPrevMonth)),
+    new Decimal(0)
+  )
+
+  return weightedRateSum.div(VIRTUAL_DAYS_IN_YEAR)
+}
+
+function getStubNextMonth(monthSegments: MonthSegment[]): Decimal {
+  const weightedRateSum = monthSegments.reduce(
+    (acc, seg) => acc.plus(seg.rate.mul(seg.daysInNextMonth)),
     new Decimal(0)
   )
 
