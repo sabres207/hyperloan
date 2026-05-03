@@ -7,7 +7,8 @@
     "server"
   ],
   "scripts": {
-    "migrate": "npm run migration:run -w server",
+    "migrate:run": "npm run migration:run -w server",
+    "migrate:create": "npm run migration:create -w server",
     "codegen": "npm run codegen -w server && npm run codegen -w client",
     "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w server && npm run build -w client"

@@ -56,4 +56,10 @@ export const typeDefs = gql`
     startDate: Date!
     endDate: Date!
   }
+
+  enum PaymentOnNonWorkDays {
+    ALLOWED
+    MOVE_TO_PREV_WORK_DAY
+    MOVE_TO_NEXT_WORK_DAY
+  }
 `

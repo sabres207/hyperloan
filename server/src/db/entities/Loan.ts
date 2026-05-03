@@ -31,6 +31,9 @@ export class Loan {
   @Column('date')
   endDate: string
 
+  @Column('text')
+  paymentOnNonWorkDays: string
+
   @OneToMany(() => Repayment, (repayment) => repayment.loan, {
     cascade: true,
   })
