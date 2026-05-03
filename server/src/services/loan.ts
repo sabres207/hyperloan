@@ -30,6 +30,7 @@ export async function createBulletLoan(
     endDate: input.endDate,
     totalExpectedInterest,
     repaymentSchedule,
+    paymentOnNonWorkDays: input.paymentOnNonWorkDays,
   })
 }
 

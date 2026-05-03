@@ -27,6 +27,7 @@ export const typeDefs = gql`
     endDate: Date!
     totalExpectedInterest: String!
     repaymentSchedule: [Repayment!]!
+    paymentOnNonWorkDays: PaymentOnNonWorkDays!
   }
 
   type Repayment {
@@ -55,6 +56,7 @@ export const typeDefs = gql`
     principalAmount: String!
     startDate: Date!
     endDate: Date!
+    paymentOnNonWorkDays: PaymentOnNonWorkDays!
   }
 
   enum PaymentOnNonWorkDays {
